@@ -1,0 +1,43 @@
+pipeline {
+    environment {
+        IMAGE_NAME =
+        IMAGE_TAG = "latest"
+    }
+    agent{
+        none
+    }
+    stages{
+        stage('Build') {
+            agent{
+                any
+            }
+            steps{
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+        stage('Build') {
+            agent{
+                any
+            }
+            steps{
+                sh 'docker run -d --name $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+        stage('Build') {
+            agent{
+                any
+            }
+            steps{
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+        stage('Build') {
+            agent{
+                any
+            }
+            steps{
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+    }
+}
