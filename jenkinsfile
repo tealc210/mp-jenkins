@@ -1,13 +1,31 @@
 pipeline {
     environment {
-        IMAGE_NAME =
+        IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
+        ENV_PRD =
+        ENV_STG =
     }
     agent{
         none
     }
     stages{
-        stage('Build') {
+        stage('Init Database') {
+            steps{
+                sh '''
+                docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -d mysql
+                sleep 5
+                cd src/main/resources/database
+                cat create.sql data.sql | mysql -h $(ip a show docker0 | awk '{print $4}' | cut -d/ -f1) -u root -ppassword
+                '''
+            }
+            
+        }
+        stage('Build app') {
+            withMaven {
+                sh 'mvn clean install'
+            }
+        }
+        stage('Build app image') {
             agent{
                 any
             }
@@ -15,28 +33,34 @@ pipeline {
                 sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
-        stage('Build') {
+        stage('Run generated image in container') {
             agent{
                 any
             }
             steps{
-                sh 'docker run -d --name $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG .'
+                sh '''
+                docker run -d -p 80:8080 --name $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG
+                sleep 10
+                '''
             }
         }
-        stage('Build') {
+        stage('Check application') {
             agent{
                 any
             }
             steps{
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh 'curl http://localhost | grep '
             }
         }
-        stage('Build') {
+        stage('Cleanup') {
             agent{
                 any
             }
             steps{
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh '''
+                docker stop $IMAGE_NAME
+                docker rm $IMAGE_NAME
+                '''
             }
         }
     }
