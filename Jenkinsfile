@@ -24,7 +24,7 @@ pipeline {
         stage('Build app') {
             agent any
             steps{
-                sh 'docker run --rm --name maven -v "$(pwd)/app_code:/mnt" -w /mnt maven:3-openjdk-17 mvn clean install'
+                sh 'docker run --name maven -v "$(pwd)/app_code:/mnt" -w /mnt maven:3-openjdk-17 mvn clean install'
             }
         }
         stage('Build app image') {
