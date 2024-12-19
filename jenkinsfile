@@ -21,8 +21,8 @@ pipeline {
             
         }
         stage('Build app') {
-            withMaven {
-                sh 'mvn clean install'
+            steps{
+                sh 'docker run --rm --name maven -v "/$(pwd)/app_code/":/mnt -w /mnt maven:3-openjdk-17 mvn clean install'
             }
         }
         stage('Build app image') {
@@ -49,7 +49,7 @@ pipeline {
                 any
             }
             steps{
-                sh 'curl http://localhost | grep '
+                sh 'curl http://localhost | grep -i buddy'
             }
         }
         stage('Cleanup') {
@@ -58,8 +58,8 @@ pipeline {
             }
             steps{
                 sh '''
-                docker stop $IMAGE_NAME
-                docker rm $IMAGE_NAME
+                docker stop $IMAGE_NAME mysql
+                docker rm $IMAGE_NAME mysql
                 '''
             }
         }
