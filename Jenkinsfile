@@ -14,11 +14,11 @@ pipeline {
             agent any
             steps{
                 sh '''
-                docker stop mysql && docker rm mysql
-                docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -d mysql
+                docker ps -a | grep mysql && docker stop mysql && docker rm mysql
+                docker run --name mysql -p 3306:3306 -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql
                 sleep 5
                 cd app_code/src/main/resources/database
-                cat create.sql data.sql | mysql -h $(ip a show docker0 | awk '{print $4}' | cut -d/ -f1) -u root -ppassword
+                cat create.sql data.sql | mysql -h $(ip a show docker0 | awk '{print $4}' | cut -d/ -f1) -u admin -ppass
                 '''
             }
             
