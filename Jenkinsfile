@@ -15,10 +15,8 @@ pipeline {
             steps{
                 sh '''
                 docker ps -a | grep mysql && docker stop mysql && docker rm mysql
-                docker run --name mysql -p 3306:3306 -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
+                docker run --name mysql -p 3306:3306 -v "$(pwd)/app_code/src/main/resources/database/create.sql:/docker-entrypoint-initdb.d/create.sql" -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
                 sleep 5
-                cd app_code/src/main/resources/database
-                cat create.sql data.sql | /usr/bin/mysql -h 172.17.0.1 -u admin -ppass
                 '''
             }
             
