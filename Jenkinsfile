@@ -2,8 +2,8 @@ pipeline {
     environment {
         IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
-        ENV_PRD =
-        ENV_STG =
+        ENV_PRD =""
+        ENV_STG =""
     }
     agent{
         none
