@@ -14,6 +14,7 @@ pipeline {
             agent any
             steps{
                 sh '''
+                docker stop mysql && docker rm mysql
                 docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -d mysql
                 sleep 5
                 cd app_code/src/main/resources/database
