@@ -1,15 +1,17 @@
 pipeline {
+
     environment {
         IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
         ENV_PRD =""
         ENV_STG =""
     }
-    agent{
-        none
-    }
+
+    agent none
+
     stages{
         stage('Init Database') {
+            agent any
             steps{
                 sh '''
                 docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -d mysql
@@ -21,22 +23,21 @@ pipeline {
             
         }
         stage('Build app') {
+            agent any
             steps{
                 sh 'docker run --rm --name maven -v "/$(pwd)/app_code/":/mnt -w /mnt maven:3-openjdk-17 mvn clean install'
             }
         }
         stage('Build app image') {
-            agent{
-                any
-            }
+            agent any
+            
             steps{
                 sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
         stage('Run generated image in container') {
-            agent{
-                any
-            }
+            agent any
+            
             steps{
                 sh '''
                 docker run -d -p 80:8080 --name $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG
@@ -45,17 +46,15 @@ pipeline {
             }
         }
         stage('Check application') {
-            agent{
-                any
-            }
+            agent any
+            
             steps{
                 sh 'curl http://localhost | grep -i buddy'
             }
         }
         stage('Cleanup') {
-            agent{
-                any
-            }
+            agent any
+            
             steps{
                 sh '''
                 docker stop $IMAGE_NAME mysql
