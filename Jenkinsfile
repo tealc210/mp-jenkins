@@ -67,7 +67,7 @@ pipeline {
             steps{
                 sh '''
                 docker stop $IMAGE_NAME mysql
-                docker rm $IMAGE_NAME mysql
+                docker rm -v $IMAGE_NAME mysql
                 docker volume rm sql
                 '''
             }
