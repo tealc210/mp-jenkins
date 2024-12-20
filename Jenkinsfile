@@ -30,8 +30,10 @@ pipeline {
         stage('Build app') {
             agent any
             steps{
+                withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONARCLOUD_TOKEN')]) {
                     sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=tealc-210_jenkins'
                 }
+            }
         }
         /*stage('Build app') {
             agent any
