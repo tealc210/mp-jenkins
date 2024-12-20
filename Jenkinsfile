@@ -6,6 +6,7 @@ pipeline {
         ENV_PRD =""
         ENV_STG =""
         ENV_TST = "172.17.0.1"
+        SONAR_TOKEN = credentials('sonarcloud')
     }
 
     agent none
