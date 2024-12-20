@@ -31,7 +31,12 @@ pipeline {
             agent any
             
             steps{
-                dockerImage = docker.build $IMAGE_NAME:$IMAGE_TAG
+                dir('/var/lib/docker/volumes/jenkins_jenkins_home/_data/workspace/mp-jenkins/app_code/'){
+                    script{
+                        dockerImage = docker.build("$IMAGE_NAME:$IMAGE_TAG")
+                    }
+                }
+                //dockerImage = docker.build($IMAGE_NAME:$IMAGE_TAG)
                 //sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG /var/lib/docker/volumes/jenkins_jenkins_home/_data/workspace/mp-jenkins/app_code/'
             }
         }
