@@ -5,6 +5,7 @@ pipeline {
         IMAGE_TAG = "latest"
         ENV_PRD =""
         ENV_STG =""
+        ENV_TST = "172.17.0.1"
     }
 
     agent none
@@ -15,7 +16,7 @@ pipeline {
             steps{
                 dir('./app_code/src/main/resources/database/'){
                     sh '''
-                    docker ps -a | grep mysql && docker stop mysql && docker rm mysql && docker volume rm sql
+                    docker ps -a | grep mysql && docker stop mysql && docker rm -v mysql && docker volume rm sql
                     docker container create --name dummy -v sql:/root hello-world
                     docker cp create.sql dummy:/root/create.sql
                     docker rm dummy
@@ -58,7 +59,7 @@ pipeline {
             agent any
             
             steps{
-                sh 'curl http://localhost | grep -i buddy'
+                sh 'curl -L http://$ENV_TST | grep "Pay My Buddy button"'
             }
         }
         stage('Cleanup') {
