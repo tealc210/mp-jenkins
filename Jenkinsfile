@@ -13,11 +13,13 @@ pipeline {
         stage('Init Database') {
             agent any
             steps{
-                sh '''
-                docker ps -a | grep mysql && docker stop mysql && docker rm mysql
-                docker run --name mysql -p 3306:3306 -v "./app_code/src/main/resources/database/create.sql:/docker-entrypoint-initdb.d/create.sql" -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
-                sleep 5
-                '''
+                dir('./app_code/src/main/resources/database/'){
+                    sh '''
+                    docker ps -a | grep mysql && docker stop mysql && docker rm mysql
+                    docker run --name mysql -p 3306:3306 -v "create.sql:/docker-entrypoint-initdb.d/create.sql" -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
+                    sleep 5
+                    '''
+                }
             }
             
         }
@@ -36,7 +38,6 @@ pipeline {
                         dockerImage = docker.build("$IMAGE_NAME:$IMAGE_TAG")
                     }
                 }
-                //dockerImage = docker.build($IMAGE_NAME:$IMAGE_TAG)
                 //sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG /var/lib/docker/volumes/jenkins_jenkins_home/_data/workspace/mp-jenkins/app_code/'
             }
         }
