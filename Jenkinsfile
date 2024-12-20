@@ -15,8 +15,11 @@ pipeline {
             steps{
                 dir('./app_code/src/main/resources/database/'){
                     sh '''
+                    docker container create --name dummy -v sql:/root hello-world
+                    docker cp create.sql dummy:/root/create.sql
+                    docker rm dummy
                     docker ps -a | grep mysql && docker stop mysql && docker rm mysql
-                    docker run --name mysql -p 3306:3306 -v "$PWD/create.sql:/docker-entrypoint-initdb.d/create.sql" -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
+                    docker run --name mysql -p 3306:3306 -v sql:/docker-entrypoint-initdb.d -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
                     sleep 5
                     '''
                 }
