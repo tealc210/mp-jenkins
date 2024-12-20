@@ -15,10 +15,10 @@ pipeline {
             steps{
                 dir('./app_code/src/main/resources/database/'){
                     sh '''
+                    docker ps -a | grep mysql && docker stop mysql && docker rm mysql && docker volume rm sql
                     docker container create --name dummy -v sql:/root hello-world
                     docker cp create.sql dummy:/root/create.sql
                     docker rm dummy
-                    docker ps -a | grep mysql && docker stop mysql && docker rm mysql
                     docker run --name mysql -p 3306:3306 -v sql:/docker-entrypoint-initdb.d -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
                     sleep 5
                     '''
@@ -26,7 +26,7 @@ pipeline {
             }
             
         }
-/*        stage('Build app') {
+        stage('Build app') {
             agent any
             steps{
                 sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn clean install'
@@ -68,8 +68,9 @@ pipeline {
                 sh '''
                 docker stop $IMAGE_NAME mysql
                 docker rm $IMAGE_NAME mysql
+                docker volume rm sql
                 '''
             }
-        }*/
+        }
     }
 }
