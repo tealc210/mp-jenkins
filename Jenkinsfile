@@ -10,7 +10,7 @@ pipeline {
 
     agent none
 
-    stages{
+    /*stages{
         stage('Init Database') {
             agent any
             steps{
@@ -26,11 +26,12 @@ pipeline {
                 }
             }
             
-        }
-        stage('Build app') {
+        }*/
+        stage('Scan') {
             agent any
             steps{
-                withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONARCLOUD_TOKEN')]) {
+                withSonarQubeEnv('SonarCloud') {
+                //withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONARCLOUD_TOKEN')]) {
                     sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io'
                 }
             }
