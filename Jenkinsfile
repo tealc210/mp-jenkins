@@ -10,8 +10,8 @@ pipeline {
 
     agent none
 
-    /*stages{
-        stage('Init Database') {
+    stages{
+        /*stage('Init Database') {
             agent any
             steps{
                 dir('./app_code/src/main/resources/database/'){
