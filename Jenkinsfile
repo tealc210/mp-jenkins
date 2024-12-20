@@ -31,7 +31,7 @@ pipeline {
             agent any
             
             steps{
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG /var/jenkins_home/workspace/mp-jenkins/app_code/'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG /var/lib/docker/volumes/jenkins_jenkins_home/_data/workspace/mp-jenkins/app_code/'
             }
         }
         stage('Run generated image in container') {
