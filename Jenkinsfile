@@ -36,7 +36,6 @@ pipeline {
             }
             tools{
                 jdk "java17"
-                nodejs "njs"
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
