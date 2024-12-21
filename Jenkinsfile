@@ -33,6 +33,9 @@ pipeline {
             environment {
                 SCANNER_HOME = tool 'scanner'
             }
+            tools{
+                jdk "java17"
+            }
             steps {
                 withSonarQubeEnv('SonarCloud') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=tealc-210 \
