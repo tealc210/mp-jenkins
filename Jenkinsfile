@@ -41,7 +41,7 @@ pipeline {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=tealc-210 \
                     -Dsonar.java.binaries=build/classes/java/ \
                     -Dsonar.projectKey=tealc-210_jenkins \
-                    -Dsonar.sources=.'''
+                    -Dsonar.sources=./app_code/src'''
                 }
             }
         }
