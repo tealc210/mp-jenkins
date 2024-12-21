@@ -33,6 +33,7 @@ pipeline {
             environment {
                 SCANNER_HOME = tool 'scanner'
                 NODEJS_HOME = tool 'njs'
+                PATH="${NODEJS_HOME}/bin:${PATH}"
             }
             tools{
                 jdk "java17"
