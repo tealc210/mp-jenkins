@@ -29,6 +29,7 @@ pipeline {
             
         }*/
         stage('SonarCloud') {
+            agent any
             environment {
                 SCANNER_HOME = tool 'scanner'
             }
