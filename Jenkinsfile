@@ -32,6 +32,7 @@ pipeline {
             agent any
             environment {
                 SCANNER_HOME = tool 'scanner'
+                NODEJS_HOME = tool 'njs'
             }
             tools{
                 jdk "java17"
