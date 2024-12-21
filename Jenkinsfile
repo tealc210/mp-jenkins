@@ -39,9 +39,9 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarCloud') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=tealc-210 \
-                    -Dsonar.java.binaries=build/classes/java/ \
+                    -Dsonar.java.binaries=app_code/target/ \
                     -Dsonar.projectKey=tealc-210_jenkins \
-                    -Dsonar.sources=./app_code/src'''
+                    -Dsonar.sources=app_code/src/'''
                 }
             }
         }
