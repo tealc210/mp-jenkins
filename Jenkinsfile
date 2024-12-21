@@ -28,12 +28,20 @@ pipeline {
             }
             
         }*/
-        stage('SonarCloud') {
+        stage('Scan') {
+            agent any
+            steps{
+                withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
+                    sh 'docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
+                }
+            }
+        }
+        /*stage('SonarCloud') {
             agent any
             environment {
                 SCANNER_HOME = tool 'scanner'
                 NODEJS_HOME = tool 'njs'
-                PATH="${NODEJS_HOME}/bin:${PATH}"
+                PATH = "${NODEJS_HOME}/bin:${PATH}"
             }
             tools{
                 jdk "java17"
@@ -46,7 +54,7 @@ pipeline {
                     -Dsonar.sources=app_code/src/'''
                 }
             }
-        }
+        }*/
         /*stage('Scan') {
             agent any
             steps{
