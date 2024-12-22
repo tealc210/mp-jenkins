@@ -157,30 +157,44 @@ pipeline {
                 }
             }
         }
+        stage('Check staging deployed application') {
+            agent any
+            
+            steps{
+                sh 'curl -L http://$ENV_STG | grep "Pay My Buddy button"'
+            }
+        }
 
-/*        stage ('Deploy to Prod Env') {
+        stage ('Deploy to Prod Env') {
             agent any
             environment {
-                HOSTNAME_DEPLOY_PROD = "ec2-50-17-119-91.compute-1.amazonaws.com"
+                ENV_PRD ="eazy-prd.agbo.fr"
             }
             steps {
-                sshagent(credentials: ['SSH_AUTH_PROD']) {
+                sshagent(credentials: ['SSHKEY']) {
                     sh '''
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
-                        ssh-keyscan -t rsa,dsa ${HOSTNAME_DEPLOY_PROD} >> ~/.ssh/known_hosts
-                        command1="docker login -u $DOCKERHUB_AUTH_USR -p $DOCKERHUB_AUTH_PSW"
-                        command2="docker pull $DOCKERHUB_AUTH_USR/$IMAGE_NAME:$IMAGE_TAG"
-                        command3="docker rm -f webapp || echo 'app does not exist'"
-                        command4="docker run -d -p 80:5000 -e PORT=5000 --name webapp $DOCKERHUB_AUTH_USR/$IMAGE_NAME:$IMAGE_TAG"
-                        ssh -t centos@${HOSTNAME_DEPLOY_PROD} \
+                        ssh-keyscan -t rsa,dsa,ed25519 ${ENV_PRD} >> ~/.ssh/known_hosts
+                        command1="docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW"
+                        command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
+                        command3="docker rm -f $IMAGE_NAME || echo 'app does not exist'"
+                        command4="docker run -d -p 80:8080 --name $IMAGE_NAME $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
+                        ssh -t ubuntu@${ENV_PRD} \
                             -o SendEnv=IMAGE_NAME \
                             -o SendEnv=IMAGE_TAG \
-                            -o SendEnv=DOCKERHUB_AUTH_USR \
-                            -o SendEnv=DOCKERHUB_AUTH_PSW \
+                            -o SendEnv=DOCKERHUB_CREDENTIALS_USR \
+                            -o SendEnv=DOCKERHUB_CREDENTIALS_PSW \
                             -C "$command1 && $command2 && $command3 && $command4"
                     '''
                 }
             }
-        } */
+        }
+        stage('Check Prod deployed application') {
+            agent any
+            
+            steps{
+                sh 'curl -L http://$ENV_PRD | grep "Pay My Buddy button"'
+            }
+        }
     }
 }
