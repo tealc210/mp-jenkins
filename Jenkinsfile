@@ -133,7 +133,7 @@ pipeline {
             }
         }
 
-        stage ('Deploy in staging') {
+        stage ('Deploy to Staging Env') {
             agent any
             environment {
                 ENV_STG ="eazy-stg.agbo.fr"
@@ -142,7 +142,7 @@ pipeline {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
-                        ssh-keyscan -t rsa,dsa ${ENV_STG} >> ~/.ssh/known_hosts
+                        ssh-keyscan -t rsa,dsa,ed25519 ${ENV_STG} >> ~/.ssh/known_hosts
                         command1="docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW"
                         command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
                         command3="docker rm -f $IMAGE_NAME || echo 'app does not exist'"
@@ -158,7 +158,7 @@ pipeline {
             }
         }
 
-/*        stage ('Deploy in prod') {
+/*        stage ('Deploy to Prod Env') {
             agent any
             environment {
                 HOSTNAME_DEPLOY_PROD = "ec2-50-17-119-91.compute-1.amazonaws.com"
