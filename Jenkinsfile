@@ -121,12 +121,15 @@ pipeline {
         }
 
         stage ('Push generated image on docker hub') {
-            agent any           
+            agent any
+            environment {
+                DOCKERHUB_CREDENTIALS=credentials('DOCKERHUB')
+            }
             steps {
                 script {
                     sh '''
-                        docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
-                        docker push $DOCKERHUB_USR/$IMAGE_NAME:$IMAGE_TAG
+                        docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW
+                        docker push $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
             }
