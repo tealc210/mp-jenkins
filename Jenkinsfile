@@ -86,10 +86,9 @@ pipeline {
             steps{
                 dir('./app_code/'){
                     script{
-                        dockerImage = docker.build("$IMAGE_NAME:$IMAGE_TAG")
+                        dockerImage = docker.build("tealc210/$IMAGE_NAME:$IMAGE_TAG")
                     }
                 }
-                //sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG /var/lib/docker/volumes/jenkins_jenkins_home/_data/workspace/mp-jenkins/app_code/'
             }
         }
         stage('Run generated image in container') {
@@ -121,19 +120,19 @@ pipeline {
             }
         }
 
-/*        stage ('Login and Push Image on docker hub') {
+        stage ('Push generated image on docker hub') {
             agent any           
             steps {
                 script {
                     sh '''
-                        docker login -u $DOCKERHUB_AUTH_USR -p $DOCKERHUB_AUTH_PSW
-                        docker push ${ID_DOCKER}/$IMAGE_NAME:$IMAGE_TAG
+                        docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
+                        docker push $DOCKERHUB_USR/$IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
             }
         }
 
-        stage ('Deploy in staging') {
+/*        stage ('Deploy in staging') {
             agent any
             environment {
                 HOSTNAME_DEPLOY_STAGING = "ec2-100-24-13-223.compute-1.amazonaws.com"
