@@ -3,10 +3,11 @@ pipeline {
     environment {
         IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
-        ENV_PRD =""
-        ENV_STG =""
+        ENV_PRD ="eazy-prd.agbo.fr"
+        ENV_STG ="eazy-stg.agbo.fr"
         ENV_TST = "172.17.0.1"
         SONAR_TOKEN = credentials('sonarcloud')
+        DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
     }
 
     agent none
@@ -122,9 +123,6 @@ pipeline {
 
         stage ('Push generated image on docker hub') {
             agent any
-            environment {
-                DOCKERHUB_CREDENTIALS=credentials('DOCKERHUB')
-            }
             steps {
                 script {
                     sh '''
@@ -135,32 +133,32 @@ pipeline {
             }
         }
 
-/*        stage ('Deploy in staging') {
+        stage ('Deploy in staging') {
             agent any
             environment {
-                HOSTNAME_DEPLOY_STAGING = "ec2-100-24-13-223.compute-1.amazonaws.com"
+                ENV_STG ="eazy-stg.agbo.fr"
             }
             steps {
-                sshagent(credentials: ['SSH_AUTH_SERVER']) {
+                sshagent(credentials: ['SSHKEY']) {
                     sh '''
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
-                        ssh-keyscan -t rsa,dsa ${HOSTNAME_DEPLOY_STAGING} >> ~/.ssh/known_hosts
-                        command1="docker login -u $DOCKERHUB_AUTH_USR -p $DOCKERHUB_AUTH_PSW"
-                        command2="docker pull $DOCKERHUB_AUTH_USR/$IMAGE_NAME:$IMAGE_TAG"
-                        command3="docker rm -f webapp || echo 'app does not exist'"
-                        command4="docker run -d -p 80:5000 -e PORT=5000 --name webapp $DOCKERHUB_AUTH_USR/$IMAGE_NAME:$IMAGE_TAG"
-                        ssh -t centos@${HOSTNAME_DEPLOY_STAGING} \
+                        ssh-keyscan -t rsa,dsa ${ENV_STG} >> ~/.ssh/known_hosts
+                        command1="docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW"
+                        command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
+                        command3="docker rm -f $IMAGE_NAME || echo 'app does not exist'"
+                        command4="docker run -d -p 80:8080 --name $IMAGE_NAME $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
+                        ssh -t ubuntu@${ENV_STG} \
                             -o SendEnv=IMAGE_NAME \
                             -o SendEnv=IMAGE_TAG \
-                            -o SendEnv=DOCKERHUB_AUTH_USR \
-                            -o SendEnv=DOCKERHUB_AUTH_PSW \
+                            -o SendEnv=DOCKERHUB_CREDENTIALS_USR \
+                            -o SendEnv=DOCKERHUB_CREDENTIALS_PSW \
                             -C "$command1 && $command2 && $command3 && $command4"
                     '''
                 }
             }
         }
 
-        stage ('Deploy in prod') {
+/*        stage ('Deploy in prod') {
             agent any
             environment {
                 HOSTNAME_DEPLOY_PROD = "ec2-50-17-119-91.compute-1.amazonaws.com"
