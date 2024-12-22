@@ -98,7 +98,7 @@ pipeline {
             steps{
                 sh '''
                 docker run -d -p 80:8080 --name $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG
-                sleep 10
+                sleep 15
                 '''
             }
         }
