@@ -136,18 +136,18 @@ pipeline {
         stage ('Deploy to Staging Env') {
             agent any
             environment {
-                ENV_STG ="eazy-stg.agbo.fr"
+                DEPLOY_ENV = $ENV_STG
             }
             steps {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
-                        ssh-keyscan -t rsa,dsa,ed25519 ${ENV_STG} >> ~/.ssh/known_hosts
+                        ssh-keyscan -t rsa,dsa,ed25519 ${DEPLOY_ENV} >> ~/.ssh/known_hosts
                         command1="docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW"
                         command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
                         command3="docker ps -a | grep $IMAGE_NAME && docker rm -f $IMAGE_NAME || echo 'app does not exist'"
                         command4="docker run -d -p 80:8080 -e SPRING_DATASOURCE_URL='jdbc:mysql://172.17.0.2:3306/db_paymybuddy' --name $IMAGE_NAME $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
-                        ssh -t ubuntu@${ENV_STG} \
+                        ssh -t ubuntu@${DEPLOY_ENV} \
                             -o SendEnv=IMAGE_NAME \
                             -o SendEnv=IMAGE_TAG \
                             -o SendEnv=DOCKERHUB_CREDENTIALS_USR \
