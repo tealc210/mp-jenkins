@@ -145,7 +145,7 @@ pipeline {
                         ssh-keyscan -t rsa,dsa,ed25519 ${ENV_STG} >> ~/.ssh/known_hosts
                         command1="docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW"
                         command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
-                        command3="docker rm -f $IMAGE_NAME || echo 'app does not exist'"
+                        command3="docker rm -f $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME || echo 'app does not exist'"
                         command4="docker run -d -p 80:8080 --name $IMAGE_NAME $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
                         ssh -t ubuntu@${ENV_STG} \
                             -o SendEnv=IMAGE_NAME \
