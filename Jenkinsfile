@@ -18,6 +18,7 @@ pipeline {
             steps{
                 dir('./app_code/src/main/resources/database/'){
                     sh '''
+                    docker ps -a | grep $IMAGE_NAME && docker rm -f $IMAGE_NAME || echo 'app does not exist'
                     docker ps -a | grep mysql && docker stop mysql && docker rm -v mysql && docker volume rm sql
                     docker container create --name dummy -v sql:/root hello-world
                     docker cp create.sql dummy:/root/create.sql
