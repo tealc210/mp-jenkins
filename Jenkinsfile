@@ -136,7 +136,7 @@ pipeline {
         stage ('Deploy to Staging Env') {
             agent any
             environment {
-                DEPLOY_ENV = $ENV_STG
+                DEPLOY_ENV = "${ENV_STG}"
             }
             steps {
                 sshagent(credentials: ['SSHKEY']) {
