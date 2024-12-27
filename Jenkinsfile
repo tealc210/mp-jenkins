@@ -142,7 +142,7 @@ pipeline {
                 DEPLOY_ENV = "${ENV_STG}"
                 DB_HOST = "172.31.28.19"
             }
-            remote_deploy "$DEPLOY_ENV" "$DOCKERHUB_CREDENTIALS_USR" "$DOCKERHUB_CREDENTIALS_PWD" "$IMAGE_NAME" "$IMAGE_TAG" "$DB_HOST" "$DB_USER" "$DB_PASS" 
+            remote_deploy("$DEPLOY_ENV" "$DOCKERHUB_CREDENTIALS_USR" "$DOCKERHUB_CREDENTIALS_PWD" "$IMAGE_NAME" "$IMAGE_TAG" "$DB_HOST" "$DB_USER" "$DB_PASS")
             /*steps {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
