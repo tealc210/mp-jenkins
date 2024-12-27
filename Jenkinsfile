@@ -1,3 +1,5 @@
+@Library('remote_deploy')_
+
 pipeline {
 
     environment {
@@ -140,7 +142,8 @@ pipeline {
                 DEPLOY_ENV = "${ENV_STG}"
                 DB_HOST = "172.31.28.19"
             }
-            steps {
+            remote_deploy "$DEPLOY_ENV" "$DOCKERHUB_CREDENTIALS_USR" "$DOCKERHUB_CREDENTIALS_PWD" "$IMAGE_NAME" "$IMAGE_TAG" "$DB_HOST" "$DB_USER" "$DB_PASS" 
+            /*steps {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
@@ -157,7 +160,7 @@ pipeline {
                             -C "$command1 && $command2 && $command3 && $command4 && sleep 30"
                     '''
                 }
-            }
+            }*/
         }
         stage('Check staging deployed application') {
             agent any
