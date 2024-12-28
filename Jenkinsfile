@@ -143,12 +143,14 @@ pipeline {
                 DB_HOST = "172.31.28.19"
                 DB_USER = "admin"
                 DB_PASS = "azerty0"
-                DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
+                //DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
             }
             steps{
                 script{
-                    sshagent(credentials: ['SSHKEY']) {
-                        remote_deploy("\$DEPLOY_ENV", "\${DOCKERHUB_CREDENTIALS_USR}", "\$DOCKERHUB_CREDENTIALS_PWD", "\$IMAGE_NAME", "\$IMAGE_TAG", "\$DB_HOST", "\$DB_USER", "\$DB_PASS")
+                    withCredentials([string(credentialsId: 'DOCKERHUB', variable: 'DOCKERHUB_CREDENTIALS')]) {
+                        sshagent(credentials: ['SSHKEY']) {
+                            remote_deploy("\$DEPLOY_ENV", "\${DOCKERHUB_CREDENTIALS_USR}", "\$DOCKERHUB_CREDENTIALS_PWD", "\$IMAGE_NAME", "\$IMAGE_TAG", "\$DB_HOST", "\$DB_USER", "\$DB_PASS")
+                        }
                     }
                 }
             }
