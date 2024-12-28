@@ -40,34 +40,34 @@ pipeline {
                 }
             }
         }
-        /*stage('SonarCloud') {
-            agent any
-            environment {
-                SCANNER_HOME = tool 'scanner'
-                NODEJS_HOME = tool 'njs'
-                PATH = "${NODEJS_HOME}/bin:${PATH}"
-            }
-            tools{
-                jdk "java17"
-            }
-            steps {
-                withSonarQubeEnv('SonarCloud') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=tealc-210 \
-                    -Dsonar.java.binaries=app_code/target/ \
-                    -Dsonar.projectKey=tealc-210_jenkins \
-                    -Dsonar.sources=app_code/src/'''
-                }
-            }
-        }*/
-        /*stage('Scan') {
-            agent any
-            steps{
-                withSonarQubeEnv('SonarCloud') {
-                //withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONARCLOUD_TOKEN')]) {
-                    sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io'
-                }
-            }
-        }*/
+        //stage('SonarCloud') {
+        //    agent any
+        //    environment {
+        //        SCANNER_HOME = tool 'scanner'
+        //        NODEJS_HOME = tool 'njs'
+        //        PATH = "${NODEJS_HOME}/bin:${PATH}"
+        //    }
+        //    tools{
+        //        jdk "java17"
+        //    }
+        //    steps {
+        //        withSonarQubeEnv('SonarCloud') {
+        //            sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=tealc-210 \
+        //            -Dsonar.java.binaries=app_code/target/ \
+        //            -Dsonar.projectKey=tealc-210_jenkins \
+        //            -Dsonar.sources=app_code/src/'''
+        //        }
+        //    }
+        //}
+        //stage('Scan') {
+        //    agent any
+        //    steps{
+        //        withSonarQubeEnv('SonarCloud') {
+        //        //withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONARCLOUD_TOKEN')]) {
+        //            sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io'
+        //        }
+        //    }
+        //}
         stage('Build app') {
             agent any
             steps{
@@ -76,14 +76,14 @@ pipeline {
                 }
             }
         }
-        /*stage("Quality Gate"){
-            timeout(time: 1, unit: 'HOURS') {
-                def qg = waitForQualityGate()
-                if (qg.status != 'OK') {
-                    error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                }
-            }
-        }*/
+        //stage("Quality Gate"){
+        //    timeout(time: 1, unit: 'HOURS') {
+        //        def qg = waitForQualityGate()
+        //        if (qg.status != 'OK') {
+        //            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+        //        }
+        //    }
+        //}
         stage('Build app image') {
             agent any
             
