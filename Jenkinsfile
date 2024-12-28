@@ -141,6 +141,9 @@ pipeline {
             environment {
                 DEPLOY_ENV = "${ENV_STG}"
                 DB_HOST = "172.31.28.19"
+                DB_USER = "admin"
+                DB_PASS = "azerty0"
+                DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
             }
             steps{
                 script{
