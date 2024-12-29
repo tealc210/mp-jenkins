@@ -181,9 +181,13 @@ pipeline {
 
         stage ('Deploy to Prod Env') {
             agent any
-            /*environment {
-                ENV_PRD ="eazy-prd.agbo.fr"
-            }*/
+            environment {
+                DEPLOY_ENV = "${ENV_PRD}"
+                DB_HOST = "${DB_HOST_PRD}"
+                DB_USER = "admin"
+                DB_PASS = "azerty0"
+                //DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
+            }
             steps {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
