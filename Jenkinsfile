@@ -5,9 +5,9 @@ pipeline {
     environment {
         IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
-        ENV_PRD ="eazy-prd.agbo.fr"
-        ENV_STG ="eazy-stg.agbo.fr"
-        ENV_TST = "172.17.0.1"
+        //ENV_PRD ="eazy-prd.agbo.fr"
+        //ENV_STG ="eazy-stg.agbo.fr"
+        //ENV_TST = "172.17.0.1"
         SONAR_TOKEN = credentials('sonarcloud')
         DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
     }
@@ -140,19 +140,19 @@ pipeline {
             agent any
             environment {
                 DEPLOY_ENV = "${ENV_STG}"
-                DB_HOST = "172.31.28.19"
+                DB_HOST = "${DB_HOST_STG}"
                 DB_USER = "admin"
                 DB_PASS = "azerty0"
                 //DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
             }
-            steps{
+            /*steps{
                 script{
                     sshagent(credentials: ['SSHKEY']) {
                         remote_deploy("\$DEPLOY_ENV", "\${DOCKERHUB_CREDENTIALS_USR}", "\$DOCKERHUB_CREDENTIALS_PWD", "\$IMAGE_NAME", "\$IMAGE_TAG", "\$DB_HOST", "\$DB_USER", "\$DB_PASS")
                     }
                 }
-            }
-            /*steps {
+            }*/
+            steps {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
@@ -169,7 +169,7 @@ pipeline {
                             -C "$command1 && $command2 && $command3 && $command4 && sleep 30"
                     '''
                 }
-            }*/
+            }
         }
         stage('Check staging deployed application') {
             agent any
@@ -181,9 +181,9 @@ pipeline {
 
         stage ('Deploy to Prod Env') {
             agent any
-            environment {
+            /*environment {
                 ENV_PRD ="eazy-prd.agbo.fr"
-            }
+            }*/
             steps {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
