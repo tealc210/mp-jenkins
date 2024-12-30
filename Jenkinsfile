@@ -1,7 +1,9 @@
 @Library('remote_deploy')_
 
 pipeline {
-
+    parameters{
+        string defaultValue: 'Jenkinsfile', description: '', name: 'JenkinsFileParameter', trim: false
+    }
     environment {
         IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
