@@ -5,9 +5,6 @@ pipeline {
     environment {
         IMAGE_NAME = "paymybuddy"
         IMAGE_TAG = "latest"
-        //ENV_PRD ="eazy-prd.agbo.fr"
-        //ENV_STG ="eazy-stg.agbo.fr"
-        //ENV_TST = "172.17.0.1"
         SONAR_TOKEN = credentials('sonarcloud')
         DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
     }
@@ -15,7 +12,7 @@ pipeline {
     agent none
 
     stages{
-        /*stage('Init Database') {
+        stage('Init Database') {
             agent any
             steps{
                 dir('./app_code/src/main/resources/database/'){
@@ -37,6 +34,15 @@ pipeline {
             steps{
                 withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
                     sh 'docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
+                }
+            }
+        }
+        stage("Quality Gate"){
+            agent any
+            timeout(time: 1, unit: 'HOURS') {
+                def qg = waitForQualityGate()
+                if (qg.status != 'OK') {
+                    error "Pipeline aborted due to quality gate failure: ${qg.status}"
                 }
             }
         }
@@ -76,17 +82,11 @@ pipeline {
                 }
             }
         }
-        //stage("Quality Gate"){
-        //    timeout(time: 1, unit: 'HOURS') {
-        //        def qg = waitForQualityGate()
-        //        if (qg.status != 'OK') {
-        //            error "Pipeline aborted due to quality gate failure: ${qg.status}"
-        //        }
-        //    }
-        //}
         stage('Build app image') {
             agent any
-            
+            when {
+                branch ''
+            }
             steps{
                 dir('./app_code/'){
                     script{
@@ -97,7 +97,11 @@ pipeline {
         }
         stage('Run generated image in container') {
             agent any
-            
+            when {
+                not {
+                    branch 'main'
+                    }
+            }
             steps{
                 sh '''
                 docker run -d -p 80:8080 --name $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG
@@ -107,14 +111,12 @@ pipeline {
         }
         stage('Check application') {
             agent any
-            
             steps{
                 sh 'curl -L http://$ENV_TST | grep "Pay My Buddy button"'
             }
         }
         stage('Cleanup') {
             agent any
-            
             steps{
                 sh '''
                 docker stop $IMAGE_NAME mysql
@@ -126,6 +128,9 @@ pipeline {
 
         stage ('Push generated image on docker hub') {
             agent any
+            when {
+                branch 'main'
+            }
             steps {
                 script {
                     sh '''
@@ -134,10 +139,15 @@ pipeline {
                     '''
                 }
             }
-        }*/
+        }
 
         stage ('Deploy to Staging Env') {
             agent any
+            when {
+                not {
+                    branch 'main'
+                    }
+            }
             environment {
                 DEPLOY_ENV = "${ENV_STG}"
                 DB_HOST = "${DB_HOST_STG}"
@@ -173,7 +183,11 @@ pipeline {
         }
         stage('Check staging deployed application') {
             agent any
-            
+            when {
+                not {
+                    branch 'main'
+                    }
+            }
             steps{
                 sh 'curl -L http://$ENV_STG | grep "Pay My Buddy button"'
             }
@@ -181,12 +195,14 @@ pipeline {
 
         stage ('Deploy to Prod Env') {
             agent any
+            when {
+                branch 'main'
+            }
             environment {
                 DEPLOY_ENV = "${ENV_PRD}"
                 DB_HOST = "${DB_HOST_PRD}"
                 DB_USER = "admin"
                 DB_PASS = "azerty0"
-                //DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
             }
             steps {
                 sshagent(credentials: ['SSHKEY']) {
@@ -209,7 +225,9 @@ pipeline {
         }
         stage('Check Prod deployed application') {
             agent any
-            
+            when {
+                branch 'main'
+            }
             steps{
                 sh 'curl -L http://$ENV_PRD | grep "Pay My Buddy button"'
             }
