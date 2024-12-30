@@ -20,11 +20,7 @@ pipeline {
                 }
             }
         }
-     /*    stage("Quality gate") {
-            steps {
-                waitForQualityGate abortPipeline: true
-            }
-        } */
+
         stage('Init Database') {
             agent any
             steps{
@@ -42,34 +38,7 @@ pipeline {
             }
             
         }
-        //stage('SonarCloud') {
-        //    agent any
-        //    environment {
-        //        SCANNER_HOME = tool 'scanner'
-        //        NODEJS_HOME = tool 'njs'
-        //        PATH = "${NODEJS_HOME}/bin:${PATH}"
-        //    }
-        //    tools{
-        //        jdk "java17"
-        //    }
-        //    steps {
-        //        withSonarQubeEnv('SonarCloud') {
-        //            sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.organization=tealc-210 \
-        //            -Dsonar.java.binaries=app_code/target/ \
-        //            -Dsonar.projectKey=tealc-210_jenkins \
-        //            -Dsonar.sources=app_code/src/'''
-        //        }
-        //    }
-        //}
-        //stage('Scan') {
-        //    agent any
-        //    steps{
-        //        withSonarQubeEnv('SonarCloud') {
-        //        //withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONARCLOUD_TOKEN')]) {
-        //            sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io'
-        //        }
-        //    }
-        //}
+
         stage('Build app') {
             agent any
             steps{
@@ -137,17 +106,7 @@ pipeline {
                 DEPLOY_ENV = "${ENV_STG}"
                 DB_HOST = "${DB_HOST_STG}"
                 DB_CREDS = credentials('DB_CREDS')
-                //DB_USER = "admin"
-                //DB_PASS = "azerty0"
-                //DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
             }
-            /*steps{
-                script{
-                    sshagent(credentials: ['SSHKEY']) {
-                        remote_deploy("\$DEPLOY_ENV", "\${DOCKERHUB_CREDENTIALS_USR}", "\$DOCKERHUB_CREDENTIALS_PWD", "\$IMAGE_NAME", "\$IMAGE_TAG", "\$DB_HOST", "\$DB_USER", "\$DB_PASS")
-                    }
-                }
-            }*/
             steps {
                 sshagent(credentials: ['SSHKEY']) {
                     sh '''
@@ -188,8 +147,6 @@ pipeline {
                 DEPLOY_ENV = "${ENV_PRD}"
                 DB_HOST = "${DB_HOST_PRD}"
                 DB_CREDS = credentials('DB_CREDS')
-                //DB_USER = "admin"
-                //DB_PASS = "azerty0"
             }
             steps {
                 sshagent(credentials: ['SSHKEY']) {
