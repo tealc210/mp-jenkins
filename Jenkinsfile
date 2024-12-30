@@ -90,11 +90,6 @@ pipeline {
         }
         stage('Run generated image in container') {
             agent any
-            when {
-                not {
-                    branch 'main'
-                    }
-            }
             steps{
                 sh '''
                 docker run -d -p 80:8080 --name $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG
@@ -121,9 +116,6 @@ pipeline {
 
         stage ('Push generated image on docker hub') {
             agent any
-            when {
-                branch 'main'
-            }
             steps {
                 script {
                     sh '''
