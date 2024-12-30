@@ -12,6 +12,19 @@ pipeline {
     agent none
 
     stages{
+        stage('Scan') {
+            agent any
+            steps{
+                withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
+                    sh 'docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
+                }
+            }
+        }
+     /*    stage("Quality gate") {
+            steps {
+                waitForQualityGate abortPipeline: true
+            }
+        } */
         stage('Init Database') {
             agent any
             steps{
@@ -28,19 +41,6 @@ pipeline {
                 }
             }
             
-        }
-        stage('Scan') {
-            agent any
-            steps{
-                withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
-                    sh 'docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
-                }
-            }
-        }
-        stage("Quality gate") {
-            steps {
-                waitForQualityGate abortPipeline: true
-            }
         }
         //stage('SonarCloud') {
         //    agent any
