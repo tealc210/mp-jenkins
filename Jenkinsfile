@@ -80,9 +80,6 @@ pipeline {
         }
         stage('Build app image') {
             agent any
-            when {
-                branch ''
-            }
             steps{
                 dir('./app_code/'){
                     script{
