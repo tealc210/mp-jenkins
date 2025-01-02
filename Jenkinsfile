@@ -1,5 +1,3 @@
-@Library('remote_deploy')_
-
 pipeline {
 
     environment {
@@ -7,6 +5,11 @@ pipeline {
         IMAGE_TAG = "latest"
         SONAR_TOKEN = credentials('sonarcloud')
         DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
+        ENV_PRD = "eazy-prd.agbo.fr"
+        ENV_STG = "eazy-stg.agbo.fr"
+        ENV_TST = "172.17.0.1"
+        DB_HOST_STG = "172.31.28.19"
+        DB_HOST_PRD = "172.31.80.69"
     }
 
     agent none
