@@ -14,7 +14,6 @@ pipeline {
         ENV_TST = "172.17.0.1"
         DB_HOST_STG = "172.31.28.19"
         DB_HOST_PRD = "172.31.80.69"
-
     }
 
     agent none
