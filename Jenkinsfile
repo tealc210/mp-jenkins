@@ -46,9 +46,7 @@ pipeline {
         stage('Build app') {
             agent any
             steps{
-                withSonarQubeEnv('SonarCloud') {
-                    sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn clean install'
-                }
+                sh 'docker run --rm --name maven -v jenkins_jenkins_home:/mnt -w /mnt/workspace/mp-jenkins/app_code/ maven:3-openjdk-17 mvn clean install'
             }
         }
 
