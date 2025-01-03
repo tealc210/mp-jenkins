@@ -24,8 +24,8 @@ pipeline {
             }
             steps {
                 sh '''
-                export PATH = ${PATH}:${MVN3}/bin
-                export JAVA_HOME = $JAVA17
+                export PATH = "${PATH}:${MVN3}/bin"
+                export JAVA_HOME = "$JAVA17"
                 cd ./app_code/
                 mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=tealc-210_jenkins
                 '''
