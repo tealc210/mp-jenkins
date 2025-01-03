@@ -57,7 +57,7 @@ pipeline {
             steps {
                 waitForQualityGate abortPipeline: true
             }
-        }
+        }*/
 
         stage('Init Database') {
             agent any
@@ -75,7 +75,7 @@ pipeline {
                 }
             }
             
-        }*/
+        }
 
         stage('Build app') {
             agent any
