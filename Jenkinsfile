@@ -75,7 +75,7 @@ pipeline {
                 }
             }
             
-        }
+        }*/
 
         stage('Build app') {
             agent any
@@ -217,7 +217,7 @@ pipeline {
             steps{
                 sh 'curl -L http://$ENV_PRD | grep "Pay My Buddy button"'
             }
-        }*/
+        }
 
     }
     post {
