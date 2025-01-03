@@ -74,12 +74,12 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'main') {
                         sh '''
-                        docker run -d -p 80:8080 --name $IMAGE_NAME-$BranchName $IMAGE_NAME:$IMAGE_TAG
+                        docker run -d -p 80:8080 --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG
                         sleep 30
                         '''
                     } else {
                         sh '''
-                        docker run -d -p 80:8080 --name $IMAGE_NAME-$BranchName $IMAGE_NAME-$BranchName:$IMAGE_TAG
+                        docker run -d -p 80:8080 --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
                         sleep 30
                         '''
                     }
