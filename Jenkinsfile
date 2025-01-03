@@ -22,7 +22,10 @@ pipeline {
                 MVN_HOME = tool name: 'MVN3'
             }
             steps {
-                sh 'echo "PATH = ${PATH}:$MVH_HOME/bin"'
+                sh '''
+                echo "PATH = ${PATH}:$MVH_HOME/bin"
+                ls -l $MVH_HOME/bin
+                '''
             }
         }
 
