@@ -19,7 +19,7 @@ pipeline {
         stage('Scan') {
             agent any
             environment {
-                MVN_HOME = tool name: 'MVN3'
+                MVN_HOME = tool name: 'mvn3'
             }
             steps {
                 sh '''
