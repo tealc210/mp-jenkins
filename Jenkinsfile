@@ -45,6 +45,9 @@ pipeline {
         stage('Init Database') {
             agent any
             steps{
+                script {
+                    env.BranchName = BRANCH_NAME.replaceAll('/', '_')
+                }
                 dir('./app_code/src/main/resources/database/'){
                     sh '''
                     docker ps -a | grep $IMAGE_NAME-$BranchName && docker rm -f $IMAGE_NAME-$BranchName || echo 'app does not exist'
