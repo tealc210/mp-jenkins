@@ -18,19 +18,27 @@ pipeline {
 
         stage('Scan') {
             agent any
-            steps{
-                script {
-                    env.BranchName = BRANCH_NAME.replaceAll('/', '_')
-                }
-                withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
-                    sh 'docker run --rm --name scanner-$BranchName -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
+            environment {
+                MVN3 = tool name: 'mvn3'
+                JAVA17 = tool name: 'java17'
+            }
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    sh '''
+                    export PATH="${PATH}:${MVN3}/bin"
+                    export JAVA_HOME="$JAVA17"
+                    cd ./app_code/
+                    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=tealc-210_jenkins
+                    '''
                 }
             }
         }
 
-        stage("Quality gate") {
+        stage("Quality Gate") {
             steps {
-                waitForQualityGate abortPipeline: true
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 
