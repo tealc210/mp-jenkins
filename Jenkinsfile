@@ -23,8 +23,8 @@ pipeline {
             }
             steps {
                 sh '''
-                echo "PATH = ${PATH}:$MVH_HOME/bin"
-                ls -l $MVH_HOME/bin
+                echo "PATH = ${PATH}:$MVN_HOME/bin"
+                ls -l $MVN_HOME/bin
                 '''
             }
         }
