@@ -188,6 +188,24 @@ pipeline {
     }
     post {
         success {
+            script {
+                def message
+                if (env.BRANCH_NAME == 'main') {
+                    message = "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) - PROD URL => http://${ENV_PRD}, STAGING URL => http://${ENV_STG}"
+                } else {
+                    message = "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) - STAGING URL => http://${ENV_STG}"
+                }
+                slackSend(color: '#00FF00', message: message)
+            }
+        }
+        failure {
+            script {
+                slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            }
+        }
+    }
+    /*post {
+        success {
             if (env.BRANCH_NAME == 'main') {
                 slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) - PROD URL => http://${ENV_PRD} , STAGING URL => http://${ENV_STG}")
             } else {
@@ -197,5 +215,5 @@ pipeline {
         failure {
             slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }   
-    }
+    }*/
 }
