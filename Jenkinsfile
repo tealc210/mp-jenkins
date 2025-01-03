@@ -18,6 +18,16 @@ pipeline {
 
         stage('Scan') {
             agent any
+            environment {
+                MVN_HOME = tool name: 'MVN3'
+            }
+            steps {
+                sh 'echo "PATH = ${PATH}:$MVH_HOME/bin"'
+            }
+        }
+
+        /*stage('Scan') {
+            agent any
             steps{
                 withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
                     sh 'docker run --rm -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
@@ -197,7 +207,7 @@ pipeline {
             script {
                 def message
                 if (env.BRANCH_NAME == 'main') {
-                    message = "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) - PROD URL => http://${ENV_PRD}, STAGING URL => http://${ENV_STG}"
+                    message = "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) - PROD URL => http://${ENV_PRD}"
                 } else {
                     message = "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) - STAGING URL => http://${ENV_STG}"
                 }
@@ -209,7 +219,7 @@ pipeline {
                 slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
         }
-    }
+    }*/
     /*post {
         success {
             if (env.BRANCH_NAME == 'main') {
