@@ -23,7 +23,7 @@ pipeline {
                 JAVA17 = tool name: 'java17'
             }
             steps {
-                withSonarQubeEnv('sonarcloud') {
+                withSonarQubeEnv('SonarCloud') {
                     sh '''
                     export PATH="${PATH}:${MVN3}/bin"
                     export JAVA_HOME="$JAVA17"
