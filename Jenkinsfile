@@ -19,8 +19,9 @@ pipeline {
         stage('Scan') {
             agent any
             steps{
+                env.BranchName = BRANCH_NAME.replaceAll('/', '_')
                 withCredentials([string(credentialsId: 'sonarcloud', variable: 'SONAR_TOKEN')]) {
-                    sh 'docker run --rm --name scanner-$BRANCH_NAME -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
+                    sh 'docker run --rm --name scanner-$BranchName -e SONAR_HOST_URL="https://sonarcloud.io" -e SONAR_TOKEN=$SONAR_TOKEN -e SONAR_SCANNER_OPTS="-Dsonar.organization=tealc-210 -Dsonar.projectKey=tealc-210_jenkins" -v "$PWD/app_code/src:/usr/src"  sonarsource/sonar-scanner-cli'
                 }
             }
         }
@@ -30,12 +31,12 @@ pipeline {
             steps{
                 dir('./app_code/src/main/resources/database/'){
                     sh '''
-                    docker ps -a | grep $IMAGE_NAME-$BRANCH_NAME && docker rm -f $IMAGE_NAME-$BRANCH_NAME || echo 'app does not exist'
-                    docker ps -a | grep mysql-$BRANCH_NAME && docker rm -f -v mysql-$BRANCH_NAME && docker volume rm sql-$BRANCH_NAME
-                    docker container create --name dummy-$BRANCH_NAME -v sql-$BRANCH_NAME:/root hello-world
-                    docker cp create.sql dummy-$BRANCH_NAME:/root/create.sql
-                    docker rm dummy-$BRANCH_NAME
-                    docker run --name mysql-$BRANCH_NAME -p 3306:3306 -v sql-$BRANCH_NAME:/docker-entrypoint-initdb.d -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
+                    docker ps -a | grep $IMAGE_NAME-$BranchName && docker rm -f $IMAGE_NAME-$BranchName || echo 'app does not exist'
+                    docker ps -a | grep mysql-$BranchName && docker rm -f -v mysql-$BranchName && docker volume rm sql-$BranchName
+                    docker container create --name dummy-$BranchName -v sql-$BranchName:/root hello-world
+                    docker cp create.sql dummy-$BranchName:/root/create.sql
+                    docker rm dummy-$BranchName
+                    docker run --name mysql-$BranchName -p 3306:3306 -v sql-$BranchName:/docker-entrypoint-initdb.d -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
                     sleep 5
                     '''
                 }
@@ -46,7 +47,7 @@ pipeline {
         stage('Build app') {
             agent any
             steps{
-                sh 'docker run --rm --name maven-$BRANCH_NAME -v jenkins_jenkins_home:/mnt -w /mnt/workspace/MP_Jenkins_$BRANCH_NAME/app_code/ maven:3-openjdk-17 mvn clean install'
+                sh 'docker run --rm --name maven-$BranchName -v jenkins_jenkins_home:/mnt -w /mnt/workspace/MP_Jenkins_$BranchName/app_code/ maven:3-openjdk-17 mvn clean install'
             }
         }
 
@@ -55,7 +56,11 @@ pipeline {
             steps{
                 dir('./app_code/'){
                     script{
-                        dockerImage = docker.build("$DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BRANCH_NAME:$IMAGE_TAG")
+                        if (env.BRANCH_NAME == 'main') {
+                            dockerImage = docker.build("$DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG")
+                        } else {
+                            dockerImage = docker.build("$DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG")
+                        }
                     }
                 }
             }
@@ -64,10 +69,19 @@ pipeline {
         stage('Run generated image in container') {
             agent any
             steps{
-                sh '''
-                docker run -d -p 80:8080 --name $IMAGE_NAME-$BRANCH_NAME $IMAGE_NAME-$BRANCH_NAME:$IMAGE_TAG
-                sleep 30
-                '''
+                script {
+                    if (env.BRANCH_NAME == 'main') {
+                        sh '''
+                        docker run -d -p 80:8080 --name $IMAGE_NAME-$BranchName $IMAGE_NAME:$IMAGE_TAG
+                        sleep 30
+                        '''
+                    } else {
+                        sh '''
+                        docker run -d -p 80:8080 --name $IMAGE_NAME-$BranchName $IMAGE_NAME-$BranchName:$IMAGE_TAG
+                        sleep 30
+                        '''
+                    }
+                }
             }
         }
 
@@ -81,11 +95,21 @@ pipeline {
         stage('Cleanup') {
             agent any
             steps{
-                sh '''
-                docker stop $IMAGE_NAME mysql-$BRANCH_NAME
-                docker rm -v $IMAGE_NAME mysql-$BRANCH_NAME
-                docker volume rm sql-$BRANCH_NAME
-                '''
+                script {
+                    if (env.BRANCH_NAME == 'main') {
+                        sh '''
+                        docker stop $IMAGE_NAME mysql-$BranchName
+                        docker rm -v $IMAGE_NAME mysql-$BranchName
+                        docker volume rm sql-$BranchName
+                        '''
+                    } else {
+                        sh '''
+                        docker stop $IMAGE_NAME-$BranchName mysql-$BranchName
+                        docker rm -v $IMAGE_NAME-$BranchName mysql-$BranchName
+                        docker volume rm sql-$BranchName
+                        '''
+                    }
+                }
             }
         }
 
@@ -93,10 +117,17 @@ pipeline {
             agent any
             steps {
                 script {
-                    sh '''
+                    if (env.BRANCH_NAME == 'main') {
+                        sh '''
                         docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW
-                        docker push $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BRANCH_NAME:$IMAGE_TAG
-                    '''
+                        docker push $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG
+                        '''
+                    } else {
+                        sh '''
+                        docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW
+                        docker push $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
+                        '''
+                    }
                 }
             }
         }
@@ -119,12 +150,12 @@ pipeline {
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
                         ssh-keyscan -t rsa,dsa,ed25519 ${DEPLOY_ENV} >> ~/.ssh/known_hosts
                         command1="docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW"
-                        command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BRANCH_NAME:$IMAGE_TAG"
-                        command3="docker ps -a | grep $IMAGE_NAME-$BRANCH_NAME && docker rm -f $IMAGE_NAME-$BRANCH_NAME || echo 'app does not exist'"
-                        command4="docker run -d -p 80:8080 -e SPRING_DATASOURCE_USERNAME='${DB_CREDS_USR}' -e SPRING_DATASOURCE_PASSWORD='${DB_CREDS_PSW}' -e SPRING_DATASOURCE_URL='jdbc:mysql://${DB_HOST}:3306/db_paymybuddy' --name $IMAGE_NAME-$BRANCH_NAME $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BRANCH_NAME:$IMAGE_TAG"
+                        command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG"
+                        command3="docker ps -a | grep $IMAGE_NAME-$BranchName && docker rm -f $IMAGE_NAME-$BranchName || echo 'app does not exist'"
+                        command4="docker run -d -p 80:8080 -e SPRING_DATASOURCE_USERNAME='${DB_CREDS_USR}' -e SPRING_DATASOURCE_PASSWORD='${DB_CREDS_PSW}' -e SPRING_DATASOURCE_URL='jdbc:mysql://${DB_HOST}:3306/db_paymybuddy' --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG"
                         ssh -t ubuntu@${DEPLOY_ENV} \
                             -o SendEnv=IMAGE_NAME \
-                            -o SendEnv=BRANCH_NAME \
+                            -o SendEnv=BranchName \
                             -o SendEnv=IMAGE_TAG \
                             -o SendEnv=DOCKERHUB_CREDENTIALS_USR \
                             -o SendEnv=DOCKERHUB_CREDENTIALS_PSW \
@@ -162,12 +193,11 @@ pipeline {
                         [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
                         ssh-keyscan -t rsa,dsa,ed25519 ${DEPLOY_ENV} >> ~/.ssh/known_hosts
                         command1="docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW"
-                        command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BRANCH_NAME:$IMAGE_TAG"
-                        command3="docker ps -a | grep $IMAGE_NAME-$BRANCH_NAME && docker rm -f $IMAGE_NAME-$BRANCH_NAME || echo 'app does not exist'"
-                        command4="docker run -d -p 80:8080 -e SPRING_DATASOURCE_USERNAME='${DB_CREDS_USR}' -e SPRING_DATASOURCE_PASSWORD='${DB_CREDS_PSW}' -e SPRING_DATASOURCE_URL='jdbc:mysql://${DB_HOST}:3306/db_paymybuddy' --name $IMAGE_NAME-$BRANCH_NAME $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BRANCH_NAME:$IMAGE_TAG"
+                        command2="docker pull $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
+                        command3="docker ps -a | grep $IMAGE_NAME && docker rm -f $IMAGE_NAME || echo 'app does not exist'"
+                        command4="docker run -d -p 80:8080 -e SPRING_DATASOURCE_USERNAME='${DB_CREDS_USR}' -e SPRING_DATASOURCE_PASSWORD='${DB_CREDS_PSW}' -e SPRING_DATASOURCE_URL='jdbc:mysql://${DB_HOST}:3306/db_paymybuddy' --name $IMAGE_NAME $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME:$IMAGE_TAG"
                         ssh -t ubuntu@${DEPLOY_ENV} \
                             -o SendEnv=IMAGE_NAME \
-                            -o SendEnv=BRANCH_NAME \
                             -o SendEnv=IMAGE_TAG \
                             -o SendEnv=DOCKERHUB_CREDENTIALS_USR \
                             -o SendEnv=DOCKERHUB_CREDENTIALS_PSW \
