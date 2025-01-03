@@ -20,11 +20,13 @@ pipeline {
             agent any
             environment {
                 MVN_HOME = tool name: 'mvn3'
+                JAVA = tool name: 'java17'
             }
             steps {
                 sh '''
                 echo "PATH = ${PATH}:$MVN_HOME/bin"
                 ls -l $MVN_HOME/bin
+                ls -l $JAVA/*
                 '''
             }
         }
