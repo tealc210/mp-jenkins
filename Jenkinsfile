@@ -50,16 +50,28 @@ pipeline {
                     env.BranchName = BRANCH_NAME.replaceAll('/', '_')
                 }
                 dir('./app_code/src/main/resources/database/'){
-                    sh '''
-                    docker ps -a | grep $IMAGE_NAME-$BranchName && docker rm -f $IMAGE_NAME-$BranchName || echo 'app does not exist'
-                    docker ps -a | grep mysql-$BranchName && docker rm -f -v mysql-$BranchName && docker volume rm sql-$BranchName
-                    docker container create --name dummy-$BranchName -v sql-$BranchName:/root hello-world
-                    docker cp create.sql dummy-$BranchName:/root/create.sql
-                    docker rm dummy-$BranchName
-                    docker run --name mysql-$BranchName -p 3306:3306 -v sql-$BranchName:/docker-entrypoint-initdb.d -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
-
-                    sleep 5
-                    '''
+                    script{
+                        if (env.BRANCH_NAME == 'main') {
+                            sh '''
+                            docker ps -a | grep $IMAGE_NAME-$BranchName && docker rm -f $IMAGE_NAME-$BranchName || echo 'app does not exist'
+                            docker ps -a | grep mysql-$BranchName && docker rm -f -v mysql-$BranchName && docker volume rm sql-$BranchName
+                            docker container create --name dummy-$BranchName -v sql-$BranchName:/root hello-world
+                            docker cp create.sql dummy-$BranchName:/root/create.sql
+                            docker rm dummy-$BranchName
+                            docker run --name mysql-$BranchName -p 3306:3306 -v sql-$BranchName:/docker-entrypoint-initdb.d -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
+                            sleep 5
+                            '''
+                        } else {
+                            sh '''
+                            docker ps -a | grep $IMAGE_NAME-$BranchName && docker rm -f $IMAGE_NAME-$BranchName || echo 'app does not exist'
+                            docker ps -a | grep mysql-$BranchName && docker rm -f -v mysql-$BranchName && docker volume rm sql-$BranchName
+                            docker container create --name dummy-$BranchName -v sql-$BranchName:/root hello-world
+                            docker cp create.sql dummy-$BranchName:/root/create.sql
+                            docker rm dummy-$BranchName
+                            docker run --name mysql-$BranchName -p 3307:3306 -v sql-$BranchName:/docker-entrypoint-initdb.d -e MYSQL_USER=admin -e MYSQL_PASSWORD=pass -e MYSQL_DATABASE=db_paymybuddy -e MYSQL_ROOT_PASSWORD=password -d mysql:8.0.40-debian
+                            sleep 5
+                            '''
+                        }
                 }
             }
             
@@ -98,7 +110,7 @@ pipeline {
                         '''
                     } else {
                         sh '''
-                        docker run -d -p 80:8080 --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
+                        docker run -d -p 81:8080 -e SPRING_DATASOURCE_URL='jdbc:mysql://${ENV_TST}:3307/db_paymybuddy' --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
                         sleep 30
                         '''
                     }
