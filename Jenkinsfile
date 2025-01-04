@@ -72,6 +72,7 @@ pipeline {
                             sleep 5
                             '''
                         }
+                    }
                 }
             }
             
