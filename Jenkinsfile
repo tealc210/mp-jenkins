@@ -122,7 +122,13 @@ pipeline {
         stage('Check application') {
             agent any
             steps{
-                sh 'curl -L http://$ENV_TST | grep "Pay My Buddy button"'
+                script {
+                    if (env.BRANCH_NAME == 'main') {
+                        sh 'curl -L http://$ENV_TST | grep "Pay My Buddy button"'
+                    } else {
+                        sh 'curl -L http://$ENV_TST:81 | grep "Pay My Buddy button"'
+                    }
+                }
             }
         }
 
@@ -130,7 +136,6 @@ pipeline {
             agent any
             steps{
                 script {
-                   
                     sh '''
                     docker stop $IMAGE_NAME-$BranchName mysql-$BranchName
                     docker rm -v $IMAGE_NAME-$BranchName mysql-$BranchName
