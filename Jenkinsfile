@@ -111,7 +111,7 @@ pipeline {
                         '''
                     } else {
                         sh '''
-                        docker run -d -p 81:8080 -e SPRING_DATASOURCE_URL='jdbc:mysql://${ENV_TST}:3307/db_paymybuddy' --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
+                        docker run -d -p 81:8080 -e SPRING_DATASOURCE_URL='jdbc:mysql://"${ENV_TST}":3307/db_paymybuddy' --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
                         sleep 30
                         '''
                     }
