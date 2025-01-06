@@ -111,7 +111,7 @@ pipeline {
                         '''
                     } else {
                         sh '''
-                        docker run -d -p 81:8080 -e SPRING_DATASOURCE_URL='jdbc:mysql://${ENV_TST}:3307/db_paymybuddy' --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
+                        docker run -d -p 81:8080 -e SPRING_DATASOURCE_URL="jdbc:mysql://$ENV_TST:3307/db_paymybuddy" --name $IMAGE_NAME-$BranchName $DOCKERHUB_CREDENTIALS_USR/$IMAGE_NAME-$BranchName:$IMAGE_TAG
                         sleep 30
                         '''
                     }
@@ -122,7 +122,13 @@ pipeline {
         stage('Check application') {
             agent any
             steps{
-                sh 'curl -L http://$ENV_TST | grep "Pay My Buddy button"'
+                script {
+                    if (env.BRANCH_NAME == 'main') {
+                        sh 'curl -L http://$ENV_TST | grep "Pay My Buddy button"'
+                    } else {
+                        sh 'curl -L http://$ENV_TST:81 | grep "Pay My Buddy button"'
+                    }
+                }
             }
         }
 
@@ -130,7 +136,6 @@ pipeline {
             agent any
             steps{
                 script {
-                   
                     sh '''
                     docker stop $IMAGE_NAME-$BranchName mysql-$BranchName
                     docker rm -v $IMAGE_NAME-$BranchName mysql-$BranchName
