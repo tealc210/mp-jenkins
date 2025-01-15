@@ -12,6 +12,7 @@
 	<artifactId>paymybuddy</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>paymybuddy</name>
+	<description>Transfer money easily between friends</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
