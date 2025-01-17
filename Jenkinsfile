@@ -30,7 +30,7 @@ pipeline {
                     export PATH="${PATH}:${MVN3}/bin"
                     export JAVA_HOME="$JAVA17"
                     cd ./app_code/
-                    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization={SONARCLD_ORG} -Dsonar.projectKey=${SONARCLD_PJ_KEY}
+                    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=${SONARCLD_ORG} -Dsonar.projectKey=${SONARCLD_PJ_KEY}
                     '''
 
                 }
