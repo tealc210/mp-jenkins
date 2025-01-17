@@ -21,6 +21,8 @@ pipeline {
             environment {
                 MVN3 = tool name: 'mvn3'
                 JAVA17 = tool name: 'java17'
+                SONARCLD_ORG = "tealc-210"
+                SONARCLD_PJ_KEY = "${SONARCLD_ORG}_jenkins"
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
@@ -28,7 +30,7 @@ pipeline {
                     export PATH="${PATH}:${MVN3}/bin"
                     export JAVA_HOME="$JAVA17"
                     cd ./app_code/
-                    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=tealc-210_jenkins
+                    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=${SONARCLD_ORG} -Dsonar.projectKey=${SONARCLD_PJ_KEY}
                     '''
 
                 }
