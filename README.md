@@ -41,7 +41,7 @@ After this, go to "Manage Jenkins > Tools" and set "Maven installations as follo
 
 Then set "JDK installations" the same way :
 
-![](images/ava_bin.png)
+![](images/java_bin.png)
 
 When all of this is done, you'll be able to use the pipeline, with a simple push to your repository.
 
