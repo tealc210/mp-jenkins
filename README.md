@@ -44,17 +44,17 @@ Then set "JDK installations" the same way :
 ![](images/java_bin.png)
 
 Also, don't forget to update the variables in the Jenkinsfile, with your own values :
-IMAGE_NAME              => The name of the image to build and submit to the CI/CD
-IMAGE_TAG               => The version of the image to be built and used
-SONAR_TOKEN             => Your SonarCloud token
-DOCKERHUB_CREDENTIALS   => Your DockerHub credentials
-ENV_PRD                 => Your production server IP/DNS Name
-ENV_STG                 => Your staging server IP/DNS Name
-ENV_TST                 => Your test server IP/DNS Name
-DB_HOST_STG             => Your staging DB server IP/DNS Name
-DB_HOST_PRD             => Your production DB server IP/DNS Name
-SONARCLD_ORG            => Your SonarCloud organization name
-SONARCLD_PJ_KEY         => Your SonarCloud project key
+ - IMAGE_NAME              => The name of the image to build and submit to the CI/CD
+ - IMAGE_TAG               => The version of the image to be built and used
+ - SONAR_TOKEN             => Your SonarCloud token
+ - DOCKERHUB_CREDENTIALS   => Your DockerHub credentials
+ - ENV_PRD                 => Your production server IP/DNS Name
+ - ENV_STG                 => Your staging server IP/DNS Name
+ - ENV_TST                 => Your test server IP/DNS Name
+ - DB_HOST_STG             => Your staging DB server IP/DNS Name
+ - DB_HOST_PRD             => Your production DB server IP/DNS Name
+ - SONARCLD_ORG            => Your SonarCloud organization name
+ - SONARCLD_PJ_KEY         => Your SonarCloud project key
 
 When all of this is done, you'll be able to use the pipeline, with a simple push to your repository.
 
